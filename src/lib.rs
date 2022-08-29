@@ -1,5 +1,5 @@
 use uuid::{uuid, Uuid};
-use chrono::{DateTime, TimeZone, NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 
 pub struct Customer {
@@ -31,6 +31,6 @@ pub struct Order {
     created: DateTime<Utc>,
     customer_id: Uuid,
     tax_percent: Decimal,
-    products: []OrderProduct,
+    products: Vec<OrderProduct>,
     discount_amount: Decimal,
 }

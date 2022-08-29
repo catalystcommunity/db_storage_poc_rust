@@ -1,29 +1,33 @@
-use clap::{Parser, ValueEnum};
-use db_storage_poc_rust::{Customer, Order, Product, OrderProduct}
+use db_storage_poc_rust::{Customer, Order, Product, OrderProduct};
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
-struct Args {
-    /// What mode to run the program in
-    #[clap(arg_enum)]
-    mode: Mode,
+#[clap(propagate_version = true)]
+struct Cli {
+    #[clap(subcommand)]
+    command: Commands,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-enum Mode {
-    Fast,
-    Slow,
+#[derive(Subcommand)]
+enum Commands {
+    /// Adds files to myapp
+    Generate { 
+        customer_count: Option<u64>, 
+        product_count: Option<u64>, 
+        order_count: Option<u64>, 
+        max_products: Option<u64>,
+        export_parquet: Option<bool>,
+    },
 }
 
 fn main() {
-   let args = Args::parse();
+    let cli = Cli::parse();
 
-    match args.mode {
-        Mode::Fast => {
-            println!("Hare");
-        }
-        Mode::Slow => {
-            println!("Tortoise");
+    match &cli.command {
+        Commands::Generate { customer_count, product_count, order_count, max_products, export_parquet } => {
+            println!("'db_storage_poc_rust generate' was used, customer_count is: {:?}", customer_count)
         }
     }
 }
+
