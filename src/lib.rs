@@ -3,11 +3,12 @@ use chrono::{DateTime, Utc, Duration};
 use rust_decimal::Decimal;
 use fake::locales::EN;
 use fake::faker::chrono::en::DateTimeBetween;
-use fake::faker::address::raw::{CityName, ZipCode, StateAbbr, BuildingNumber, StreetName, StreetSuffix};
+use fake::faker::lorem::raw::{Word};
+use fake::faker::address::raw::{CityName, ZipCode, StateAbbr, StreetSuffix};
 use fake::faker::name::raw::{FirstName, LastName};
 use fake::faker::internet::raw::{FreeEmailProvider};
-use fake::Fake;
-use string_concat::*;
+use fake::{Fake};
+use rand::{Rng};
 
 pub struct Customer {
     id: Uuid,
@@ -50,6 +51,7 @@ pub fn generate_data(customer_count: u64, product_count: u64, order_count: u64, 
     }
 
     const NUM_PLACES: u64 = 10;
+    let mut rng = rand::thread_rng();
     let mut customer_ids: Vec<Uuid> = Vec::new();
     let mut zip_codes: Vec<String> = Vec::new();
     let mut city_names: Vec<String> = Vec::new();
@@ -65,10 +67,31 @@ pub fn generate_data(customer_count: u64, product_count: u64, order_count: u64, 
         let customer: Customer = Customer{
             id: Uuid::new_v4(),
             email: FreeEmailProvider(EN).fake(),
-            address: string_concat!(BuildingNumber(EN).fake(), " ", StreetName(EN).fake(), " ", StreetSuffix(EN).fake(), "\n",
-                                    city_names[(i%NUM_PLACES) as usize], ", ", states[(i%NUM_PLACES) as usize], " ", zip_codes[(i%NUM_PLACES) as usize]),
+            address: {
+                let n1: u8 = rng.gen();
+                let nums: String = n1.to_string();
+                let mut temp_string = String::new();
+                temp_string.push_str(&nums);
+                temp_string.push_str(" ");
+                temp_string.push_str(Word(EN).fake());
+                temp_string.push_str(" ");
+                temp_string.push_str(StreetSuffix(EN).fake());
+                temp_string.push_str("\n");
+                temp_string.push_str(&city_names[(i%NUM_PLACES) as usize]);
+                temp_string.push_str(", ");
+                temp_string.push_str(&states[(i%NUM_PLACES) as usize]);
+                temp_string.push_str(" ");
+                temp_string.push_str(&zip_codes[(i%NUM_PLACES) as usize]);
+                temp_string
+            },
             created: DateTimeBetween(Utc::now() - Duration::weeks(52), Utc::now()).fake(),
-            name: string_concat!(FirstName(EN).fake(), " ", LastName(EN).fake()),
+            name: {
+                let mut temp_string = String::new();
+                temp_string.push_str(FirstName(EN).fake());
+                temp_string.push_str(" ");
+                temp_string.push_str(LastName(EN).fake());
+                temp_string
+            },
         };
         customer_ids.push(customer.id);
     }
