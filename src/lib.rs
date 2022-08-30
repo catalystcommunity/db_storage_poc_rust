@@ -7,8 +7,10 @@ use fake::faker::lorem::raw::{Word};
 use fake::faker::address::raw::{CityName, ZipCode, StateAbbr, StreetSuffix};
 use fake::faker::name::raw::{FirstName, LastName};
 use fake::faker::internet::raw::{FreeEmailProvider};
+use fake::faker::company::raw::{Buzzword, CatchPhase};
 use fake::{Fake};
 use rand::{Rng};
+
 
 pub struct Customer {
     id: Uuid,
@@ -53,6 +55,8 @@ pub fn generate_data(customer_count: u64, product_count: u64, order_count: u64, 
     const NUM_PLACES: u64 = 10;
     let mut rng = rand::thread_rng();
     let mut customer_ids: Vec<Uuid> = Vec::new();
+    let mut product_ids: Vec<Uuid> = Vec::new();
+    let mut order_ids: Vec<Uuid> = Vec::new();
     let mut zip_codes: Vec<String> = Vec::new();
     let mut city_names: Vec<String> = Vec::new();
     let mut states: Vec<String> = Vec::new();
@@ -96,4 +100,58 @@ pub fn generate_data(customer_count: u64, product_count: u64, order_count: u64, 
         customer_ids.push(customer.id);
     }
     println!("Customer IDs: {:?}", customer_ids.len());
+
+    for _ in 0..product_count {
+        let product: Product = Product {
+            id: Uuid::new_v4(),
+            shortcode: {
+                let n4: u32 = rng.gen();
+                let nums: String = n4.to_string();
+                nums
+            },                                                                                                  
+            initial_sale_date: DateTimeBetween(Utc::now() - Duration::weeks(52), Utc::now() - Duration::weeks(30)).fake(),                                                                                   
+            display_name: Buzzword(EN).fake(),                                                                                               
+            description: CatchPhase(EN).fake(),
+            price: {
+                let n8: i64 = rng.gen_range(1..99);
+                Decimal::new((n8 * 100) + 99, 2)
+            },
+        };
+        product_ids.push(product.id);
+    }
+    println!("Product IDs: {:?}", product_ids.len());
+    
+    for _ in 0..order_count {
+        let order: Order = Order {
+            id: Uuid::new_v4(),
+            created: DateTimeBetween(Utc::now() - Duration::weeks(52), Utc::now() - Duration::weeks(30)).fake(),
+            customer_id: customer_ids[rng.gen_range(0..customer_count) as usize],
+            tax_percent: Decimal::new(rng.gen_range(30..95), 1),
+            products: attachable_products(product_ids.as_slice(), max_products),
+            discount_amount: Decimal::new(rng.gen_range(1..199), 2) ,
+        };
+        order_ids.push(order.id);
+    }
+    println!("Order IDs: {:?}", order_ids.len());
+}
+
+fn attachable_products(product_ids: &[Uuid], max_products: u64) -> Vec<OrderProduct> {
+    let mut products: Vec<OrderProduct> = Vec::new();
+    let mut rng = rand::thread_rng();
+
+    for _ in 1..rng.gen_range(1..max_products) {
+        let prod_id = product_ids[rng.gen_range(0..product_ids.len()) as usize].clone();
+        products.push(OrderProduct {
+            product_id: prod_id,
+            quantity: rng.gen_range(1..10) as u16,
+            price_per: {
+                // Actually should just get the price per for the product
+                let n8: i64 = rng.gen_range(1..99);
+                Decimal::new((n8 * 100) + 99, 2)
+            },
+      })
+    }
+    println!("Product Instances for this Order: {:?}", products.len());
+
+    products
 }

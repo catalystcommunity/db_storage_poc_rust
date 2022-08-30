@@ -20,7 +20,7 @@ enum Commands {
         product_count: u64, 
         #[clap(short, long, default_value_t = 1_000)]
         order_count: u64, 
-        #[clap(short, long, default_value_t = 1_000)]
+        #[clap(short, long, default_value_t = 10)]
         max_products: u64,
         #[clap(short, long)]
         export_parquet: bool,
