@@ -7,7 +7,9 @@ edition = "2021"
 
 [dependencies]
 chrono = "0.4.22"
-clap = { version = "3.2.17", features = ["derive"] }
+clap = { version = "3.2.17", features = ["derive", "cargo"] }
 fake = { version = "2.5", features = ["derive", "uuid", "random_color", "time", "chrono", "rust_decimal"] }
+rand = "0.8.5"
 rust_decimal = { version = "1.26.1", features = ["serde-bincode"] }
+string_concat = "0.0.1"
 uuid = { version = "1.1.2", features = ["v4", "js", "serde"] }
