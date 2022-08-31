@@ -14,11 +14,14 @@ struct Cli {
 enum Commands {
     /// Adds files to myapp
     Generate { 
-        #[clap(short, long, default_value_t = 1_000)]
+        #[clap(short, long, default_value_t = 10_000_000)]
+        //#[clap(short, long, default_value_t = 1_000)]
         customer_count: u64, 
-        #[clap(short, long, default_value_t = 1_000)]
+        #[clap(short, long, default_value_t = 1_000_000)]
+        //#[clap(short, long, default_value_t = 1_000)]
         product_count: u64, 
-        #[clap(short, long, default_value_t = 1_000)]
+        #[clap(short, long, default_value_t = 1_000_000_000)]
+        //#[clap(short, long, default_value_t = 1_000)]
         order_count: u64, 
         #[clap(short, long, default_value_t = 10)]
         max_products: u64,
