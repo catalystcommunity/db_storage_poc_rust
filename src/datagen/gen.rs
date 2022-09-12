@@ -11,6 +11,8 @@ use fake::faker::company::raw::{Buzzword, CatchPhase};
 use fake::Fake;
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
+use std::collections::HashMap;
+use super::dataset::{Table,Column,TableMetaData};
 
 
 pub struct Customer {
@@ -27,8 +29,7 @@ pub struct Product {
     initial_sale_date: DateTime<Utc>,
     display_name: String,
     description: String,
-    price: Decimal,
-}
+    price: Decimal, }
 
 pub struct OrderProduct {
     product_id: Uuid,
@@ -40,13 +41,12 @@ pub struct OrderProduct {
 pub struct Order {
     id: Uuid,
     created: DateTime<Utc>,
-    customer_id: Uuid,
-    tax_percent: Decimal,
+    customer_id: Uuid, tax_percent: Decimal,
     products: Vec<OrderProduct>,
     discount_amount: Decimal,
 }
 
-pub fn generate_data(customer_count: u64, product_count: u64, order_count: u64, max_products: u64, export_parquet: bool) {
+pub fn Generate_data(customer_count: u64, product_count: u64, order_count: u64, max_products: u64, export_parquet: bool) {
     if export_parquet {
         println!("Currently exporting parquet is an ignored option.");
     } else {
@@ -141,6 +141,24 @@ pub fn generate_data(customer_count: u64, product_count: u64, order_count: u64, 
         }
     }
     // println!("Order IDs: {:?}", order_ids.len());
+
+
+    // Generate a directory and files for fun and testing before we refactor all this
+    let mut id_column: String = "my_pk".to_string();
+    let meta: TableMetaData = TableMetaData{
+        table_name: "my_test_table".to_string(),
+        columns: 2,
+        rows: 1,
+    };
+    let mut pk_col: Vec<Uuid> = Vec::new();
+    pk_col.push(Uuid::new_v4());
+    let mut names_col: Vec<String> = Vec::new();
+    names_col.push("The Dude".to_string());
+    let mut data: HashMap<String, Column> = HashMap::new();
+    data.insert(id_column, Column::Uuid(pk_col));
+    data.insert("names".to_string(), Column::String(names_col));
+    let foo: Table = Table::new(id_column, meta, data).unwrap();
+    Table::insert_data(foo);
 }
 
 fn attachable_products(product_ids: &[Uuid], max_products: u64) -> Vec<OrderProduct> {
@@ -159,7 +177,6 @@ fn attachable_products(product_ids: &[Uuid], max_products: u64) -> Vec<OrderProd
             },
         });
     }
-    //println!("Product Instances for this Order: {:?}", products.len());
-
+    //println!("Product Instances for this Order: {:?}", products.len();
     products
 }
