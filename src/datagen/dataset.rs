@@ -37,17 +37,36 @@ impl Table {
             let error = Err(format!("Column with name {:?} not in data", id_column));
             return error;
         }
-        let retVal: Table = Table{
+        let ret_val: Table = Table{
             id_column: id_column,
             meta: meta,
             data: data,
         };
         
-        return Ok(retVal);
+        return Ok(ret_val);
     }
 
     pub fn insert_data(table: Table) -> Result<String, String> {
         fs::create_dir_all(DATA_DIRECTORY).unwrap();
+        for (col, vals) in table.data {
+            fs::create_dir_all(format!("{}",DATA_DIRECTORY.to_owned()+"/"+&col)).unwrap();
+            // First, see what files are in there for the table/column
+            // Do this on a per COLUMN basis, not table
+            // See what room there is
+            // If there's room, add to it the rows you can
+            // If there isn't, or when there isn't, create the next numbered file
+            // Repeat until every column is done
+            let mut highest:u64 = 0;
+            let paths = fs::read_dir(format!("{}",DATA_DIRECTORY.to_owned()+"/"+&col)).unwrap();
+            for path in paths {
+                let pd = format!("{}", path.unwrap().path().display());
+                let (_, num) = pd.rsplit_once("_").unwrap();
+                let current_num = num.parse::<u64>().unwrap();
+                if current_num > highest {
+                    highest = current_num;
+                }
+            }
+        }
         return Ok("".to_string());
     }
 }

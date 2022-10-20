@@ -144,7 +144,7 @@ pub fn Generate_data(customer_count: u64, product_count: u64, order_count: u64, 
 
 
     // Generate a directory and files for fun and testing before we refactor all this
-    let mut id_column: String = "my_pk".to_string();
+    let id_column: String = "my_pk".to_string();
     let meta: TableMetaData = TableMetaData{
         table_name: "my_test_table".to_string(),
         columns: 2,
@@ -155,10 +155,10 @@ pub fn Generate_data(customer_count: u64, product_count: u64, order_count: u64, 
     let mut names_col: Vec<String> = Vec::new();
     names_col.push("The Dude".to_string());
     let mut data: HashMap<String, Column> = HashMap::new();
-    data.insert(id_column, Column::Uuid(pk_col));
+    data.insert(id_column.clone(), Column::Uuid(pk_col));
     data.insert("names".to_string(), Column::String(names_col));
-    let foo: Table = Table::new(id_column, meta, data).unwrap();
-    Table::insert_data(foo);
+    let table: Table = Table::new(id_column, meta, data).unwrap();
+    Table::insert_data(table);
 }
 
 fn attachable_products(product_ids: &[Uuid], max_products: u64) -> Vec<OrderProduct> {
