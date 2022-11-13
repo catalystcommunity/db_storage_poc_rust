@@ -38,7 +38,7 @@ fn main() {
     match &cli.command {
         Commands::Generate { customer_count, product_count, order_count, max_products, export_parquet } => {
             println!("'db_storage_poc_rust generate' was used, customer_count is: {:?}\nmax_products is: {:?}", customer_count, max_products);
-            datagen::gen::Generate_data(*customer_count, *product_count, *order_count, *max_products, *export_parquet);
+            datagen::gen::generate_data(*customer_count, *product_count, *order_count, *max_products, *export_parquet);
         }
     }
 }

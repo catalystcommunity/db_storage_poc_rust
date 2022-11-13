@@ -2,9 +2,12 @@ use super::constants::{DATA_DIRECTORY,FILE_SIZE};
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
-use std::collections::HashMap;
+use std::{collections::HashMap, fs::File};
 use std::fs;
-
+use std::fs::{DirEntry,OpenOptions};
+use std::io::Write;
+use std::mem;
+use std::ops::Range;
 
 // This would eventually be a full header, and it might just be a pointer to a metadata file set
 pub struct TableMetaData {
@@ -13,17 +16,189 @@ pub struct TableMetaData {
     pub rows: u64,
 }
 
+// #[derive(Debug)]
+//pub enum ColumnSlice<'a> {
+//    String(&'a [String]),
+//    Int64(&'a [i64]),
+//    Int8(&'a [i8]),
+//    UInt64(&'a [u64]),
+//    UInt8(&'a [u8]),
+//    DateTime(&'a [DateTime<Utc>]),
+//    Decimal(&'a [Decimal]),
+//    Uuid(&'a [Uuid]),
+//    ForeignKey(&'a [Uuid]),
+//}
+
 pub enum Column {
-   String(Vec<String>),
-   Int64(Vec<i64>),
-   Int8(Vec<i8>),
-   UInt64(Vec<u64>),
-   UInt8(Vec<u8>),
-   DateTime(Vec<DateTime<Utc>>),
-   Decimal(Vec<Decimal>),
-   Uuid(Vec<Uuid>),
-   ForeignKey(Vec<Uuid>),
+    String(Vec<String>),
+    Int64(Vec<i64>),
+    Int8(Vec<i8>),
+    UInt64(Vec<u64>),
+    UInt8(Vec<u8>),
+    DateTime(Vec<DateTime<Utc>>),
+    Decimal(Vec<Decimal>),
+    Uuid(Vec<Uuid>),
+    ForeignKey(Vec<Uuid>),
 }
+
+impl Column {
+    pub fn len(&self) -> usize {
+        match self {
+            Column::String(val) => val.len(),
+            Column::Int64(val) => val.len(),
+            Column::Int8(val)  => val.len(),
+            Column::UInt64(val) => val.len(),
+            Column::UInt8(val) => val.len(),
+            Column::DateTime(val) => val.len(),
+            Column::Decimal(val) => val.len(),
+            Column::Uuid(val) => val.len(),
+            Column::ForeignKey(val) => val.len(),
+        }
+    }
+
+    pub fn write_data(&self, directory: &String, column_name: &String, highest_filenum: u64) -> Result<u64,String>
+    {
+        // Write data, return the latest filename to be using
+        let each_size = match self {
+            Column::String(_) => mem::size_of::<u64>()*20,
+            Column::Int64(_) => mem::size_of::<i64>(),
+            Column::Int8(_)  => mem::size_of::<i8>(),
+            Column::UInt64(_) => mem::size_of::<u64>(),
+            Column::UInt8(_) => mem::size_of::<u8>(),
+            Column::DateTime(_) => mem::size_of::<DateTime<Utc>>(),
+            Column::Decimal(_) => mem::size_of::<Decimal>(),
+            Column::Uuid(_) => mem::size_of::<Uuid>(),
+            Column::ForeignKey(_) => mem::size_of::<Uuid>(),
+        };
+        let mut records_written:usize = 0;
+        let mut ret_filenum = highest_filenum;
+
+        while records_written < self.len() {
+            let num_part = format!("{:020}", ret_filenum);
+            let file_name = format!("{}", column_name.to_owned() + "_" + &num_part); 
+            let full_path = format!("{}",directory.to_owned()+&file_name);
+            println!("{}", "Full Path: ".to_owned() + &full_path);
+            let mut file = OpenOptions::new()
+                .write(true)
+                .create(true)
+                .append(true)
+                .open(&full_path)
+                .unwrap();
+            let current_file_size = fs::metadata(&full_path).unwrap().len();
+            let size_left = FILE_SIZE - current_file_size;
+            let records_available = size_left as usize / each_size;
+            println!("{}", "size_left: ".to_owned() + &size_left.to_string() + " records_available: " + &records_available.to_string());
+            if records_available == 0 {
+                ret_filenum += 1;
+                continue;
+            }
+ 
+            match self {
+                Column::String(val) => {
+                    let mut limit = val.len();
+                    if limit > records_available {
+                        limit = records_available;
+                    }
+                    let values = &val[records_written..limit];
+                    for item in values {
+                        let _ = writeln!(file, "{}", &item);
+                    }
+                    records_written += records_available - records_written;
+                },
+                Column::Int8(val) => {
+                    let mut limit = val.len();
+                    if limit > records_available {
+                        limit = records_available;
+                    }
+                    let values = &val[records_written..limit];
+                    for item in values {
+                        let _ = file.write_all(&item.to_be_bytes());
+                    }
+                    records_written += records_available - records_written;
+                },
+                Column::Int64(val) => {
+                    let mut limit = val.len();
+                    if limit > records_available {
+                        limit = records_available;
+                    }
+                    let values = &val[records_written..limit];
+                    for item in values {
+                        let _ = file.write_all(&item.to_be_bytes());
+                    }
+                    records_written += records_available - records_written;
+                },
+                Column::UInt8(val) => {
+                    let mut limit = val.len();
+                    if limit > records_available {
+                        limit = records_available;
+                    }
+                    let values = &val[records_written..limit];
+                    for item in values {
+                        let _ = file.write_all(&item.to_be_bytes());
+                    }
+                    records_written += records_available - records_written;
+                },
+                Column::UInt64(val) => {
+                    let mut limit = val.len();
+                    if limit > records_available {
+                        limit = records_available;
+                    }
+                    let values = &val[records_written..limit];
+                    for item in values {
+                        let _ = file.write_all(&item.to_be_bytes());
+                    }
+                    records_written += records_available - records_written;
+                },
+                Column::DateTime(val) => {
+                    let mut limit = val.len();
+                    if limit > records_available {
+                        limit = records_available;
+                    }
+                    let values = &val[records_written..limit];
+                    for item in values {
+                        let _ = file.write_all(&item.timestamp_millis().to_be_bytes());
+                    }
+                    records_written += records_available - records_written;
+                },
+                Column::Decimal(val) => {
+                    let mut limit = val.len();
+                    if limit > records_available {
+                        limit = records_available;
+                    }
+                    let values = &val[records_written..limit];
+                    for item in values {
+                        let _ = file.write_all(&item.serialize());
+                    }
+                    records_written += records_available - records_written;
+                },
+                Column::Uuid(val) => {
+                    let mut limit = val.len();
+                    if limit > records_available {
+                        limit = records_available;
+                    }
+                    let values = &val[records_written..limit];
+                    for item in values {
+                        let _ = file.write_all(item.as_bytes());
+                    }
+                    records_written += records_available - records_written;
+                },
+                Column::ForeignKey(val) => {
+                    let mut limit = val.len();
+                    if limit > records_available {
+                        limit = records_available;
+                    }
+                    let values = &val[records_written..limit];
+                    for item in values {
+                        let _ = file.write_all(item.as_bytes());
+                    }
+                    records_written += records_available - records_written;
+                },
+            };
+        }
+        Ok(ret_filenum)
+    }
+}
+
 
 pub struct Table {
     pub meta: TableMetaData,
@@ -43,13 +218,17 @@ impl Table {
             data: data,
         };
         
-        return Ok(ret_val);
+        Ok(ret_val)
     }
 
-    pub fn insert_data(table: Table) -> Result<String, String> {
-        fs::create_dir_all(DATA_DIRECTORY).unwrap();
-        for (col, vals) in table.data {
-            fs::create_dir_all(format!("{}",DATA_DIRECTORY.to_owned()+"/"+&col)).unwrap();
+    pub fn insert_data(&self) -> Result<String, String> {
+        let mut column_latest_files:HashMap<String, u64> = HashMap::new();
+        let table_dir = DATA_DIRECTORY.to_owned()+&self.meta.table_name;
+        fs::create_dir_all(&table_dir).unwrap();
+        for (col_name, data) in &self.data {
+            let col_dir = format!("{}",table_dir.to_owned()+"/"+&col_name+"/");
+            println!("{}", "Full Path: ".to_owned() + &col_dir);
+            fs::create_dir_all(&col_dir).unwrap();
             // First, see what files are in there for the table/column
             // Do this on a per COLUMN basis, not table
             // See what room there is
@@ -57,16 +236,35 @@ impl Table {
             // If there isn't, or when there isn't, create the next numbered file
             // Repeat until every column is done
             let mut highest:u64 = 0;
-            let paths = fs::read_dir(format!("{}",DATA_DIRECTORY.to_owned()+"/"+&col)).unwrap();
+            let mut last_file:String = "".to_string();
+            let paths = fs::read_dir(&col_dir).unwrap();
             for path in paths {
-                let pd = format!("{}", path.unwrap().path().display());
-                let (_, num) = pd.rsplit_once("_").unwrap();
+                let pd = format!("{}", &path.as_ref().unwrap().path().display());
+                let (_, num) = pd.rsplit_once('_').unwrap();
                 let current_num = num.parse::<u64>().unwrap();
                 if current_num > highest {
                     highest = current_num;
+                    last_file = path.unwrap().file_name().to_str().unwrap().to_string();
                 }
             }
+            if !last_file.is_empty() && fs::metadata(last_file.clone()).unwrap().len() >= FILE_SIZE  {
+                // Technically we'd want to worry about why it's greater than the file size
+                // limit, but alas, here we are in PoC land
+                highest += 1;
+            }
+            let highest_filenum = data.write_data(&col_dir, &col_name, highest).unwrap();
+            column_latest_files.insert(col_name.to_string(), highest_filenum);
         }
-        return Ok("".to_string());
+        Ok("".to_string())
     }
 }
+
+//fn to_date_time_string(datetime_bytes: &[u8]) -> DateTime<Utc>
+//{
+//    let millis = i64::from_le_bytes(datetime_bytes.try_into().unwrap());
+//    Utc.timestamp_millis(millis)
+//}
+
+
+
+

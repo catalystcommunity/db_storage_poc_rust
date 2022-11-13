@@ -46,7 +46,7 @@ pub struct Order {
     discount_amount: Decimal,
 }
 
-pub fn Generate_data(customer_count: u64, product_count: u64, order_count: u64, max_products: u64, export_parquet: bool) {
+pub fn generate_data(customer_count: u64, product_count: u64, order_count: u64, max_products: u64, export_parquet: bool) {
     if export_parquet {
         println!("Currently exporting parquet is an ignored option.");
     } else {
@@ -158,7 +158,7 @@ pub fn Generate_data(customer_count: u64, product_count: u64, order_count: u64, 
     data.insert(id_column.clone(), Column::Uuid(pk_col));
     data.insert("names".to_string(), Column::String(names_col));
     let table: Table = Table::new(id_column, meta, data).unwrap();
-    Table::insert_data(table);
+    table.insert_data();
 }
 
 fn attachable_products(product_ids: &[Uuid], max_products: u64) -> Vec<OrderProduct> {
