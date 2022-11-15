@@ -15,6 +15,7 @@ Cargo.lock
 Footer
 
 # Generated demo data should be ignored
+/demo_data_swap
 /demo_data
 
 .idea
