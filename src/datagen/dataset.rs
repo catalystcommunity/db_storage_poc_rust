@@ -65,7 +65,8 @@ impl Column {
             Column::Int8(_)  => mem::size_of::<i8>(),
             Column::UInt64(_) => mem::size_of::<u64>(),
             Column::UInt8(_) => mem::size_of::<u8>(),
-            Column::DateTime(_) => mem::size_of::<DateTime<Utc>>(),
+            // DateTime will get stored as an i64 from millis to bytes
+            Column::DateTime(_) => mem::size_of::<i64>(),
             Column::Decimal(_) => mem::size_of::<Decimal>(),
             Column::Uuid(_) => mem::size_of::<Uuid>(),
             Column::ForeignKey(_) => mem::size_of::<Uuid>(),
