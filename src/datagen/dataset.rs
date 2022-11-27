@@ -141,7 +141,7 @@ impl Column {
                     }
                     let values = &val[records_written..limit];
                     for item in values {
-                        let _ = file.write_all(&item.to_be_bytes());
+                        let _ = file.write_all(&item.to_le_bytes());
                     }
                     records_written = limit;
                 },
@@ -152,7 +152,7 @@ impl Column {
                     }
                     let values = &val[records_written..limit];
                     for item in values {
-                        let _ = file.write_all(&item.to_be_bytes());
+                        let _ = file.write_all(&item.to_le_bytes());
                     }
                     records_written = limit;
                 },
@@ -163,7 +163,7 @@ impl Column {
                     }
                     let values = &val[records_written..limit];
                     for item in values {
-                        let _ = file.write_all(&item.to_be_bytes());
+                        let _ = file.write_all(&item.to_le_bytes());
                     }
                     records_written = limit;
                 },
@@ -174,7 +174,7 @@ impl Column {
                     }
                     let values = &val[records_written..limit];
                     for item in values {
-                        let _ = file.write_all(&item.to_be_bytes());
+                        let _ = file.write_all(&item.to_le_bytes());
                     }
                     records_written = limit;
                 },
@@ -184,8 +184,13 @@ impl Column {
                         limit = records_available + records_written;
                     }
                     let values = &val[records_written..limit];
+                    // let mut foo = records_written;
                     for item in values {
-                        let _ = file.write_all(&item.timestamp_millis().to_be_bytes());
+                        // if foo < 2 {
+                        //     println!("Column Name: {}, Millis: {:02X?}", column_name.to_owned(), item.timestamp_millis().to_le_bytes());
+                        //     foo += 1;
+                        // }
+                        let _ = file.write(&item.timestamp_millis().to_le_bytes());
                     }
                     records_written = limit;
                 },

@@ -16,14 +16,14 @@ struct Cli {
 enum Commands {
     /// Adds files to myapp
     Generate { 
-        //#[clap(short, long, default_value_t = 10_000_000)]
+        // #[clap(short, long, default_value_t = 10_000_000)]
         #[clap(short, long, default_value_t = 100_000)]
         customer_count: u64, 
-        //#[clap(short, long, default_value_t = 1_000_000)]
-        #[clap(short, long, default_value_t = 1_000)]
+        // #[clap(short, long, default_value_t = 1_000_000)]
+        #[clap(short, long, default_value_t = 10_000)]
         product_count: u64, 
-        //#[clap(short, long, default_value_t = 1_000_000_000)]
-        #[clap(short, long, default_value_t = 10_000_000)]
+        // #[clap(short, long, default_value_t = 1_000_000_000)]
+        #[clap(short, long, default_value_t = 1_000_000)]
         order_count: u64, 
         #[clap(short, long, default_value_t = 10)]
         max_products: u64,
@@ -31,6 +31,8 @@ enum Commands {
         export_parquet: bool,
     },
     Analyze {
+    },
+    Average {
     },
 }
 
@@ -46,6 +48,10 @@ fn main() {
         Commands::Analyze {} => {
             println!("'db_storage_poc_rust analyze' was used, now looking at all the data available.");
             analyze::process::process_data();
+        },
+        Commands::Average {} => {
+            println!("'db_storage_poc_rust average' was used, doing the fastest single-column average with order_products quantity.");
+            analyze::process::process_average();
         },
     }
 }

@@ -266,7 +266,7 @@ pub fn generate_data(customer_count: u64, product_count: u64, order_count: u64, 
             }
             let id = Uuid::new_v4();
             pk_col.push(id);
-            created_col.push(DateTimeBetween(Utc::now() - Duration::weeks(52), Utc::now() - Duration::weeks(30)).fake());
+            created_col.push(DateTimeBetween(Utc::now() - Duration::weeks(52), Utc::now()).fake());
             customer_id_col.push(customer_ids[rng.gen_range(0..customer_count) as usize]);
             tax_percent_col.push(Decimal::new(rng.gen_range(30..95), 1));
             for product in attachable_products(products_slice, max_products) {
