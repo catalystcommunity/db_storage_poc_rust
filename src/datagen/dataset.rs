@@ -190,7 +190,7 @@ impl Column {
                         //     println!("Column Name: {}, Millis: {:02X?}", column_name.to_owned(), item.timestamp_millis().to_le_bytes());
                         //     foo += 1;
                         // }
-                        let _ = file.write(&item.timestamp_millis().to_le_bytes());
+                        let _ = file.write_all(&item.timestamp_millis().to_le_bytes());
                     }
                     records_written = limit;
                 },

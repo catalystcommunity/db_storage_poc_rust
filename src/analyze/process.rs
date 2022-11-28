@@ -272,7 +272,18 @@ pub fn process_data() {
                 let milli_bytes = &mut created_buffer[created_file_offset..created_file_offset+created_size];
                 let millis = i64::from_le_bytes(milli_bytes.try_into().unwrap());
                 created_file_offset += created_size;
-                let datetime = Utc.timestamp_millis(millis);
+                let timestamp_result = Utc.timestamp_millis_opt(millis);
+                let datetime =match timestamp_result {
+                    chrono::LocalResult::None => {
+                        println!("Bad time: {:#?}", milli_bytes);
+                        Utc::now()
+                    },
+                    chrono::LocalResult::Single(t) => {t},
+                    chrono::LocalResult::Ambiguous(t, _) => {
+                        println!("Ambiguous time: {:#?}", milli_bytes);
+                        t
+                    },
+                };
                 let month = Utc.ymd(datetime.date_naive().year(), datetime.date_naive().month(), 1).and_hms(0,0,0);
                 // println!("Created month: {}", month);
                 orders_per_month.entry(month).and_modify(|counter| *counter += 1).or_insert(1);
