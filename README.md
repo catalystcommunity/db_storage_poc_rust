@@ -25,3 +25,11 @@ Regardless, a successful PoC to be sure. The bottleneck is still the disk, but w
 Rust is definitely a learning curve failure here. It's the right thing for the safety and typing needed, but I wouldn't do the query engine in it. This low level storage approach is showing what we can do without knowing what we're doing, so that's helpful. I'd be happy with the performance staying right here, let alone improving. It's already quite fast and very memory friendly, and with less naive work and a better file format (and in-memory representation) there's much to improve.
 
 Rust also requires a very different kind of thinking. I should have gone through the Rust Book verbatim before touching this code base rather than winging it after learning the basics. The language is just not intuitive and very much works against you if you aren't conforming to the flows it makes easier.
+
+## Try it Yourself
+
+If you compile this with `cargo build --release` and then run it with the `generate` command, it will by default build 1 million orders with 100k customers and up to 10 products per order. Generation is pretty slow, much of which is generating random data and converting it to bytes to be written, all in pieces. It might be sped up with buffered file IO, but I have spent no time optimizing that since I run it once to do analysis many times.
+
+The `analyze` command does full analysis on orders, order_products, and customers. The `average` command does analysis on a single column in order_products for the quantity column. These are naively implemented with some optimization attempts to get to reasonable speeds. It will output a bunch of findings, the bytes scanned, and a time scanned with bytes/second calculated for you.
+
+Generate a large set of data with overrides, or small if you just want to try it out. It looks for data in the `demo_data` directory.

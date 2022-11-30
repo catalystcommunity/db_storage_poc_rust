@@ -239,8 +239,8 @@ pub fn process_data() {
                 if created_file_offset >= created_buffer.len() {
                     created_file_num += 1;
                     created_file_offset = 0;
-                    created_file_path = id_path.to_owned() + "id_" + &format!("{:020}", created_file_num);
-                    // println!("Created Path: {}", created_file_path);
+                    created_file_path = created_path.to_owned() + "created_" + &format!("{:020}", created_file_num);
+                    println!("Order Created Path: {}", created_file_path);
 
                     created_buffer = get_file_as_bytes(created_file_path.to_owned());
                     bytes_scanned += created_buffer.len() as u64;
@@ -248,7 +248,7 @@ pub fn process_data() {
                 if customer_id_file_offset >= customer_id_buffer.len() {
                     customer_id_file_num += 1;
                     customer_id_file_offset = 0;
-                    customer_id_file_path = id_path.to_owned() + "id_" + &format!("{:020}", customer_id_file_num);
+                    customer_id_file_path = customer_id_path.to_owned() + "customer_id_" + &format!("{:020}", customer_id_file_num);
                     // println!("Customer ID Path: {}", customer_id_file_path);
 
                     customer_id_buffer = get_file_as_bytes(customer_id_file_path.to_owned());
@@ -336,8 +336,8 @@ pub fn process_data() {
                 if price_per_file_offset >= price_per_buffer.len() {
                     price_per_file_num += 1;
                     price_per_file_offset = 0;
-                    price_per_file_path = price_per_path.to_owned() + "id_" + &format!("{:020}", price_per_file_num);
-                    // println!("Created Path: {}", price_per_file_path);
+                    price_per_file_path = price_per_path.to_owned() + "price_per_" + &format!("{:020}", price_per_file_num);
+                    println!("Price Per Path: {}", price_per_file_path);
 
                     price_per_buffer = get_file_as_bytes(price_per_file_path.to_owned());
                     bytes_scanned += price_per_buffer.len() as u64;
@@ -345,7 +345,7 @@ pub fn process_data() {
                 if quantity_file_offset >= quantity_buffer.len() {
                     quantity_file_num += 1;
                     quantity_file_offset = 0;
-                    quantity_file_path = quantity_path.to_owned() + "id_" + &format!("{:020}", quantity_file_num);
+                    quantity_file_path = quantity_path.to_owned() + "quantity_" + &format!("{:020}", quantity_file_num);
                     // println!("Customer ID Path: {}", quantity_file_path);
 
                     quantity_buffer = get_file_as_bytes(quantity_file_path.to_owned());
